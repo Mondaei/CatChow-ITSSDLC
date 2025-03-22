@@ -53,9 +53,18 @@
         </activity>
         <activity
             android:name=".LoginWithEmailLinkActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustPan"
-            />
+            android:exported="true"
+            android:windowSoftInputMode="adjustPan">
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data
+                    android:scheme="https"
+                    android:host="catchow-app.firebaseapp.com"
+                    android:pathPrefix="/__/auth/links" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".SignUpActivity"
             android:exported="false"
@@ -82,8 +91,18 @@
             android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".MainActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustPan" />
+            android:exported="true"
+            android:windowSoftInputMode="adjustPan">
+
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" android:host="catchow.page.link" android:pathPrefix="/Main" />
+                <data android:scheme="https" android:host="catchow.page.link" android:pathPrefix="/Main" />
+            </intent-filter>
+        </activity>
     </application>
+
 
 </manifest>
