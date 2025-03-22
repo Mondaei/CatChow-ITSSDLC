@@ -42,6 +42,7 @@ public class LogInActivity extends AppCompatActivity {
     ProgressDialog progressDialog;
     ActivityLogInBinding binding;
     Button google_button;
+    Button emailLink_button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +75,16 @@ public class LogInActivity extends AppCompatActivity {
         ForegroundColorSpan signUpColor = new ForegroundColorSpan(Color.parseColor("#Ef8A07"));
         spannable2.setSpan(signUpColor, 22, buttonText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         signUpButton.setText(spannable2);
+        emailLink_button = findViewById(R.id.emailLink_button);
+
+        emailLink_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(LogInActivity.this, LoginWithEmailLinkActivity.class);
+                startActivity(intent);
+            }
+        });
+
 
         google_button = findViewById(R.id.google_button);
         gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();

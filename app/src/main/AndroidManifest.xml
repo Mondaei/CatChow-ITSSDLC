@@ -52,6 +52,11 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".LoginWithEmailLinkActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan"
+            />
+        <activity
             android:name=".SignUpActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustPan" />
