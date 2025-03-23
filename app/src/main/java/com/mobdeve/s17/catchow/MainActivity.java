@@ -121,10 +121,10 @@ public class MainActivity extends AppCompatActivity {
                     });
         }
 
-        checkfordynamiclinks();
+        checkForDynamicLinks();
     }
 
-    private void checkfordynamiclinks() {
+    private void checkForDynamicLinks() {
         FirebaseDynamicLinks.getInstance()
                 .getDynamicLink(getIntent())
                 .addOnSuccessListener(this, new OnSuccessListener<PendingDynamicLinkData>() {
@@ -134,12 +134,15 @@ public class MainActivity extends AppCompatActivity {
                         Uri deepLink = null;
                         if (pendingDynamicLinkData != null) {
                             deepLink = pendingDynamicLinkData.getLink();
+
+                            // Only forward if we actually have a deep link
+                            if (deepLink != null) {
+                                // Forward to your LoginWithEmailLinkActivity instead of LogInActivity
+                                Intent intent = new Intent(MainActivity.this, LoginWithEmailLinkActivity.class);
+                                intent.setData(deepLink);
+                                startActivity(intent);
+                            }
                         }
-
-                        Intent intent = new Intent(MainActivity.this, LogInActivity.class);
-                        intent.setData(deepLink);
-                        startActivity(intent);
-
                     }
                 })
                 .addOnFailureListener(this, new OnFailureListener() {
@@ -299,7 +302,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         Log.d(TAG, "onStart: Activity started");
 //        clearSharedPreferencesData();
-        checkfordynamiclinks();
+        checkForDynamicLinks();
     }
 
     @Override
