@@ -320,4 +320,10 @@ public class History extends AppCompatActivity {
         overridePendingTransition(R.anim.fade_in,R.anim.fade_out);
         finish();
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AuditLogger.log(currentEmail, "VIEW_ORDER_HISTORY", "USER_ORDERS", true);
+    }
 }

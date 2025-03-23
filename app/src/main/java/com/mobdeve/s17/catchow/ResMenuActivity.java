@@ -20,6 +20,8 @@ import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -66,6 +68,8 @@ public class ResMenuActivity extends AppCompatActivity {
     private Double minimum;
     private String duration;
     private String storename;
+    private String currentEmail;
+    FirebaseAuth auth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +91,11 @@ public class ResMenuActivity extends AppCompatActivity {
         selected = ContextCompat.getColor(this, R.color.orange);
         not_selected = ContextCompat.getColor(this, R.color.hard_text);
         see_txt = findViewById(R.id.see_txt);
+
+        FirebaseUser currentUser = auth.getCurrentUser();
+        if (currentUser != null) {
+            currentEmail = currentUser.getEmail();
+        }
 
         // Setup Bottom Navigation View
         setupBottomNavigationView();
@@ -112,6 +121,7 @@ public class ResMenuActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        AuditLogger.log(currentEmail, "VIEW_MENU", "RESTAURANT_" + name, true);
     }
 
     private void setupBottomNavigationView() {
@@ -208,6 +218,7 @@ public class ResMenuActivity extends AppCompatActivity {
     }
 
     public void getAllFood(View v) {
+        AuditLogger.log(currentEmail, "FILTER_MENU", "FILTER_ALL_" + name, true);
         menu_adapter.setMenu(menu);
         all_btn.setTextColor(selected);
         popular_btn.setTextColor(not_selected);
@@ -216,6 +227,7 @@ public class ResMenuActivity extends AppCompatActivity {
 
 
     public void getPopularFood (View v) {
+        AuditLogger.log(currentEmail, "FILTER_MENU", "FILTER_POPULAR_" + name, true);
         ArrayList<Food> filteredMenu = new ArrayList<>();
         for (Food food: menu) {
             if (food.getType().toLowerCase().contains("Popular".toLowerCase())) {
@@ -229,6 +241,7 @@ public class ResMenuActivity extends AppCompatActivity {
     }
 
     public void getRecommendedFood (View v) {
+        AuditLogger.log(currentEmail, "FILTER_MENU", "FILTER_RECOMMENDED_" + name, true);
         ArrayList<Food> filteredMenu = new ArrayList<>();
         for (Food food: menu) {
             if (food.getType().toLowerCase().contains("Recommended".toLowerCase())) {

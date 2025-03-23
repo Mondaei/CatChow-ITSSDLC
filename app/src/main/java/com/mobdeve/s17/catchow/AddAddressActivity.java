@@ -154,6 +154,7 @@ public class AddAddressActivity extends AppCompatActivity {
                                                             .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                                                 @Override
                                                                 public void onSuccess(DocumentReference documentReference) {
+                                                                    AuditLogger.log(currentEmail, "ADD_ADDRESS", "ADDRESS_" + newLabel, true);
                                                                     Log.d(TAG, "Address added with ID: " + documentReference.getId());
                                                                     setResult(RESULT_OK, new Intent());
                                                                     finish();
@@ -163,6 +164,7 @@ public class AddAddressActivity extends AppCompatActivity {
                                                             .addOnFailureListener(new OnFailureListener() {
                                                                 @Override
                                                                 public void onFailure(@NonNull Exception e) {
+                                                                    AuditLogger.log(currentEmail, "ADD_ADDRESS", "ADDRESS_" + newLabel, false);
                                                                     Log.w(TAG, "Error adding address", e);
                                                                     error_txt.setText("Error adding address");
                                                                     error_txt.setTextColor(getResources().getColor(R.color.red, getTheme()));

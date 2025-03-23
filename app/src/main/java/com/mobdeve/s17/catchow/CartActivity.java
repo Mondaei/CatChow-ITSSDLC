@@ -138,6 +138,7 @@ public class CartActivity extends AppCompatActivity {
                     // Start the OrderPlacedActivity
                     startActivity(new Intent(CartActivity.this, OrderPlacedActivity.class));
                     finish();
+                    AuditLogger.log(currentEmail, "PLACE_ORDER", "ORDER_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date()), true);
                 }
             }
         });
@@ -303,6 +304,7 @@ public class CartActivity extends AppCompatActivity {
                             // Use Tasks.whenAllComplete to handle the completion of all tasks
                             Task<List<Task<?>>> allTasks = Tasks.whenAllComplete(tasks);
                             allTasks.addOnSuccessListener(aVoid -> {
+                                AuditLogger.log(currentEmail, "SAVE_ORDER_DETAILS", "ORDER_COUNT_" + orderCount, true);
                                 Log.d(TAG, "All order details added successfully to Firestore");
                                 // Optionally, you can clear SharedPreferences after successfully saving the data
                                 // clearSharedPreferences();
@@ -382,6 +384,7 @@ public class CartActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        AuditLogger.log(currentEmail, "VIEW_CART", "USER_CART", true);
         Log.d(TAG, "onResume: Activity resumed");
     }
 

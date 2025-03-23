@@ -35,6 +35,8 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.mobdeve.s17.catchow.databinding.ActivitySignUpBinding;
 import com.mobdeve.s17.catchow.models.Users;
 
+import com.mobdeve.s17.catchow.AuditLogger;
+
 import java.util.List;
 
 
@@ -127,6 +129,7 @@ public class SignUpActivity extends AppCompatActivity {
                                             @Override
                                             public void onComplete(@NonNull Task<AuthResult> task) {
                                                 if(task.isSuccessful()) {
+                                                    AuditLogger.log(email, "SIGNUP", "USER_CREATION", true);
                                                     Users model = new Users(name, email);
 
                                                     String id = task.getResult().getUser().getUid();
@@ -140,6 +143,7 @@ public class SignUpActivity extends AppCompatActivity {
                                                         }
                                                     });
                                                 } else {
+                                                    AuditLogger.log(email, "REGISTER", "USER_CREATION", false);
                                                     progressDialog.dismiss();
                                                     Toast.makeText(SignUpActivity.this, task.getException().getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                                                 }

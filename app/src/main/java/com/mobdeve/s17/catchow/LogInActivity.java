@@ -27,11 +27,13 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.mobdeve.s17.catchow.databinding.ActivityLogInBinding;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.mobdeve.s17.catchow.models.Users;
+import com.mobdeve.s17.catchow.AuditLogger;
 
 public class LogInActivity extends AppCompatActivity {
 
@@ -75,6 +77,7 @@ public class LogInActivity extends AppCompatActivity {
         ForegroundColorSpan signUpColor = new ForegroundColorSpan(Color.parseColor("#Ef8A07"));
         spannable2.setSpan(signUpColor, 22, buttonText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         signUpButton.setText(spannable2);
+
         emailLink_button = findViewById(R.id.emailLink_button);
 
         emailLink_button.setOnClickListener(new View.OnClickListener() {
@@ -84,7 +87,6 @@ public class LogInActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
 
         google_button = findViewById(R.id.google_button);
         gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
@@ -115,10 +117,13 @@ public class LogInActivity extends AppCompatActivity {
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if(task.isSuccessful()) {
                                 progressDialog.dismiss();
+                                AuditLogger.log(email, "LOGIN", "USER_AUTH", true);
+                                checkUserRoleAndRedirect(email);
                                 startActivity(new Intent(LogInActivity.this, MainActivity.class));
                                 finish();
                             } else {
                                 progressDialog.dismiss();
+                                AuditLogger.log(email, "LOGIN", "USER_AUTH", false);
                                 if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
                                     Toast.makeText(LogInActivity.this, "Invalid username or password", Toast.LENGTH_SHORT).show();
                                 }
@@ -165,6 +170,32 @@ public class LogInActivity extends AppCompatActivity {
         }
     }
 
+    private void checkUserRoleAndRedirect(String email) {
+        firestore.collection("users")
+                .whereEqualTo("email", email)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        DocumentSnapshot userDoc = queryDocumentSnapshots.getDocuments().get(0);
+                        String role = userDoc.getString("role");
+
+                        if ("admin".equals(role)) {
+                            // User is admin, go to admin interface
+                            startActivity(new Intent(LogInActivity.this, AdminMainActivity.class));
+                        } else {
+                            // Regular user, go to main app
+                            startActivity(new Intent(LogInActivity.this, MainActivity.class));
+                        }
+                        finish();
+                    } else {
+                        // User not found in database
+                        Toast.makeText(LogInActivity.this, "User not found", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(LogInActivity.this, "Error checking user role", Toast.LENGTH_SHORT).show();
+                });
+    }
     private void handleGoogleSignInResult(GoogleSignInAccount account) {
         String name = account.getDisplayName();
         String email = account.getEmail();

@@ -170,7 +170,7 @@ public class ReviewFormActivity extends AppCompatActivity {
                         public void onSuccess(DocumentReference documentReference) {
                             // Rating and review successfully added
                             Toast.makeText(getApplicationContext(), "Rating and review saved.", Toast.LENGTH_SHORT).show();
-
+                            AuditLogger.log(currentEmail, "SUBMIT_REVIEW", "RESTAURANT_" + storeName + "_RATING_" + rating, true);
                             // Clear the RatingBar and multilineTextView if needed
                             ratingBar.setRating(0.0f);
                             multilineTextView.setText("");
@@ -180,6 +180,7 @@ public class ReviewFormActivity extends AppCompatActivity {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             // Handle the error
+                            AuditLogger.log(currentEmail, "SUBMIT_REVIEW", "RESTAURANT_" + storeName + "_RATING_" + rating, false);
                             Toast.makeText(getApplicationContext(), "Failed to save rating and review.", Toast.LENGTH_SHORT).show();
                         }
                     });

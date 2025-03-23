@@ -320,6 +320,7 @@ public class OrderPlacedActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        AuditLogger.log(currentEmail, "VIEW_ORDER_CONFIRMATION", "ORDER_CONFIRMATION", true);
         Log.d(TAG, "onResume: Activity resumed");
     }
 

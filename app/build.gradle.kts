@@ -49,9 +49,9 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:32.5.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.github.bumptech.glide:glide:4.16.0")
-    implementation("com.google.android.gms:play-services-auth:21.3.0")
-    implementation(platform("com.google.firebase:firebase-bom:33.11.0"))
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
+    implementation(platform("com.google.firebase:firebase-bom:32.6.0"))
     implementation("com.google.firebase:firebase-auth")
+    implementation ("androidx.cardview:cardview:1.0.0")
     implementation("com.google.firebase:firebase-dynamic-links:17.0.0")
-
 }

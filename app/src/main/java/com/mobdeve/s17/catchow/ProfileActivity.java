@@ -68,6 +68,7 @@ public class ProfileActivity extends AppCompatActivity {
         FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser != null) {
             String userEmail = currentUser.getEmail();
+            checkIfAdmin();
 
             firestore.collection("users")
                     .whereEqualTo("email", userEmail)
@@ -123,6 +124,13 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     void signOut () {
+        String userEmail = null;
+        FirebaseUser currentUser = auth.getCurrentUser();
+        if (currentUser != null) {
+            userEmail = currentUser.getEmail();
+        }
+
+        AuditLogger.log(userEmail, "LOGOUT", "USER_SESSION", true);
         auth.signOut();
         Task<Void> voidTask = gsc.signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -160,5 +168,30 @@ public class ProfileActivity extends AppCompatActivity {
             }
             return false;
         });
+    }
+
+    private void checkIfAdmin() {
+        FirebaseUser currentUser = auth.getCurrentUser();
+        if (currentUser != null) {
+            String userEmail = currentUser.getEmail();
+
+            firestore.collection("users")
+                    .whereEqualTo("email", userEmail)
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                            String role = documentSnapshot.getString("role");
+
+                            if ("admin".equals(role)) {
+                                // Show admin panel button
+                                Button adminButton = findViewById(R.id.admin_button);
+                                adminButton.setVisibility(View.VISIBLE);
+                                adminButton.setOnClickListener(v -> {
+                                    startActivity(new Intent(ProfileActivity.this, AdminActivity.class));
+                                });
+                            }
+                        }
+                    });
+        }
     }
 }

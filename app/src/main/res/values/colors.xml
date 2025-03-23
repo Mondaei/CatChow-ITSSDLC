@@ -16,5 +16,7 @@
     <color name="shade_1">#954535</color>
     <color name="shade_2">#7B3F00</color>
     <color name="shade_3">#6E260E</color>
+    <color name="purple_500">#6200EE</color>
+    <color name="purple_700">#3700B3</color>
 
 </resources>

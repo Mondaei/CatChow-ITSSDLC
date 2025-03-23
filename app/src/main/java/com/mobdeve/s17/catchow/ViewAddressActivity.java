@@ -182,6 +182,7 @@ public class ViewAddressActivity extends AppCompatActivity {
                                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                 @Override
                                                                 public void onSuccess(Void aVoid) {
+                                                                    AuditLogger.log(currentEmail, "UPDATE_ADDRESS", "ADDRESS_" + selLabel, true);
                                                                     Log.d(TAG, "Address updated successfully");
                                                                     setResult(RESULT_OK, new Intent());
                                                                     finish();
@@ -191,6 +192,7 @@ public class ViewAddressActivity extends AppCompatActivity {
                                                             .addOnFailureListener(new OnFailureListener() {
                                                                 @Override
                                                                 public void onFailure(@NonNull Exception e) {
+                                                                    AuditLogger.log(currentEmail, "UPDATE_ADDRESS", "ADDRESS_" + selLabel, false);
                                                                     Log.e(TAG, "Error updating address", e);
                                                                     error_txt.setText("Error updating address");
                                                                     error_txt.setTextColor(getResources().getColor(R.color.red, getTheme()));
@@ -258,6 +260,7 @@ public class ViewAddressActivity extends AppCompatActivity {
                                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                 @Override
                                                                 public void onSuccess(Void aVoid) {
+                                                                    AuditLogger.log(currentEmail, "DELETE_ADDRESS", "ADDRESS_" + labelToDelete, true);
                                                                     Log.d(TAG, "Address deleted successfully!");
                                                                     setResult(RESULT_OK, new Intent());
                                                                     finish();
@@ -267,6 +270,7 @@ public class ViewAddressActivity extends AppCompatActivity {
                                                             .addOnFailureListener(new OnFailureListener() {
                                                                 @Override
                                                                 public void onFailure(@NonNull Exception e) {
+                                                                    AuditLogger.log(currentEmail, "DELETE_ADDRESS", "ADDRESS_" + labelToDelete, false);
                                                                     Log.e(TAG, "Error deleting address", e);
                                                                     error_txt.setText("Error deleting address");
                                                                     error_txt.setTextColor(getResources().getColor(R.color.red, getTheme()));

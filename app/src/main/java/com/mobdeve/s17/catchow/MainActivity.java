@@ -39,7 +39,10 @@ import com.mobdeve.s17.catchow.adapters.Restaurant_RVAdapter;
 import com.mobdeve.s17.catchow.models.Restaurant;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     ArrayList<Restaurant> restaurantList = new ArrayList<>();
@@ -50,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     Button coffee_btn;
     Button des_btn;
     BottomNavigationView navbar;
+    private String currentEmail;
 
     // Restaurant Recycler View Variables
     RecyclerView restaurant_rv;
@@ -61,6 +65,10 @@ public class MainActivity extends AppCompatActivity {
     TextView greeting_text;
     FirebaseAuth auth;
     FirebaseFirestore firestore;
+
+    private static final String PREFS_NAME = "CatChowPrefs";
+    private static final String KEY_DB_INITIALIZED = "database_initialized";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +87,20 @@ public class MainActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
 
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        boolean isInitialized = prefs.getBoolean(KEY_DB_INITIALIZED, false);
+
+        FirebaseUser currentUser = auth.getCurrentUser();
+        if (currentUser != null) {
+            currentEmail = currentUser.getEmail();
+        }
+
+        if (!isInitialized) {
+            initializeRoles();
+            setupAdminUser("admin@email.com");
+
+            prefs.edit().putBoolean(KEY_DB_INITIALIZED, true).apply();
+        }
 
         //Setup Bottom Navigation View
         setupBottomNavigationView();
@@ -88,6 +110,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Setup Firestore Database
         db = FirebaseFirestore.getInstance();
+
+        setupRolesAndAdmin();
 
         // Setup Restaurant Recycler View
         setupRestaurantRecyclerView();
@@ -101,7 +125,6 @@ public class MainActivity extends AppCompatActivity {
             greeting_text.setText("Hello, " + personName + "!");
         }
 
-        FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser != null) {
             String userEmail = currentUser.getEmail();
 
@@ -120,7 +143,6 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     });
         }
-
         checkForDynamicLinks();
     }
 
@@ -149,6 +171,47 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.w(TAG, "getDynamicLink:onFailure", e);
+                    }
+                });
+    }
+
+    private void initializeRoles() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Define admin role
+        Map<String, Object> adminRole = new HashMap<>();
+        adminRole.put("name", "admin");
+        adminRole.put("permissions", Arrays.asList(
+                "view_users", "delete_users", "view_orders", "view_logs"
+        ));
+
+        // Define user role
+        Map<String, Object> userRole = new HashMap<>();
+        userRole.put("name", "user");
+        userRole.put("permissions", Arrays.asList(
+                "place_orders", "manage_profile", "manage_addresses"
+        ));
+
+        // Add roles to Firestore
+        db.collection("roles").document("admin").set(adminRole);
+        db.collection("roles").document("user").set(userRole);
+    }
+
+    private void setupAdminUser(String adminEmail) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("users")
+                .whereEqualTo("email", adminEmail)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        DocumentSnapshot userDoc = queryDocumentSnapshots.getDocuments().get(0);
+                        db.collection("users").document(userDoc.getId())
+                                .update("role", "admin")
+                                .addOnSuccessListener(aVoid ->
+                                        Log.d("Admin", "User updated to admin successfully"))
+                                .addOnFailureListener(e ->
+                                        Log.e("Admin", "Error updating user to admin", e));
                     }
                 });
     }
@@ -183,6 +246,21 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
             return false;
+        });
+    }
+
+    private void setupRolesAndAdmin() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Check if roles collection exists
+        db.collection("roles").get().addOnSuccessListener(queryDocumentSnapshots -> {
+            if (queryDocumentSnapshots.isEmpty()) {
+                // Initialize roles
+                initializeRoles();
+
+                // Set up initial admin (replace with your admin email)
+                setupAdminUser("admin@example.com");
+            }
         });
     }
 
@@ -247,6 +325,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void search(String newText) {
+        AuditLogger.log(currentEmail, "SEARCH_RESTAURANTS", "QUERY_" + newText, true);
         ArrayList<Restaurant> filteredList = new ArrayList<>();
         for (Restaurant res: restaurantList) {
             if (res.getName().toLowerCase().contains(newText.toLowerCase())) {
@@ -261,6 +340,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void filterRestaurant(View v) {
+        AuditLogger.log(currentEmail, "FILTER_RESTAURANTS", "FILTER_TYPE_RESTAURANT", true);
         ArrayList<Restaurant> filteredList = new ArrayList<>();
         for (Restaurant res: restaurantList) {
             if (res.getType().toLowerCase().contains("Restaurant".toLowerCase())) {
@@ -271,6 +351,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void filterCoffee(View v) {
+        AuditLogger.log(currentEmail, "FILTER_RESTAURANTS", "FILTER_TYPE_CAFE", true);
         ArrayList<Restaurant> filteredList = new ArrayList<>();
         for (Restaurant res: restaurantList) {
             if (res.getType().toLowerCase().contains("Cafe".toLowerCase())) {
@@ -281,6 +362,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void filterDessert(View v) {
+        AuditLogger.log(currentEmail, "FILTER_RESTAURANTS", "FILTER_TYPE_DESSERT", true);
         ArrayList<Restaurant> filteredList = new ArrayList<>();
         for (Restaurant res: restaurantList) {
             if (res.getType().toLowerCase().contains("Dessert".toLowerCase())) {
@@ -308,6 +390,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        AuditLogger.log(currentEmail, "VIEW_HOME", "MAIN_SCREEN", true);
         Log.d(TAG, "onResume: Activity resumed");
 //        clearSharedPreferencesData();
     }

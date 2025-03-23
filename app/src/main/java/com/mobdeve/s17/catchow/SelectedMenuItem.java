@@ -221,6 +221,7 @@ public class SelectedMenuItem extends AppCompatActivity {
                         editor.apply();
 
                         Toast.makeText(getApplicationContext(), "New order added to the cart", Toast.LENGTH_SHORT).show();
+                        AuditLogger.log(currentEmail, "ADD_TO_CART", "ITEM_" + name + "_QTY_" + quantity, true);
                     }
 
                     setResult(RESULT_OK, new Intent());

@@ -24,6 +24,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.mobdeve.s17.catchow.adapters.RatingAdapter;
 import com.mobdeve.s17.catchow.models.Rating;
+import com.mobdeve.s17.catchow.UserManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -187,5 +188,12 @@ public class RatingListActivity extends AppCompatActivity {
 
     public void goBack (View v) {
         finish();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String restaurantName = getIntent().getStringExtra("restaurantName");
+        AuditLogger.log(UserManager.getCurrentUserEmail(this), "VIEW_RATINGS", "RESTAURANT_" + restaurantName, true);
     }
 }
