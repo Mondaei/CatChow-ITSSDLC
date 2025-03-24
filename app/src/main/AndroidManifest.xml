@@ -65,12 +65,13 @@
                     android:host="catchow-app.firebaseapp.com"
                     android:pathPrefix="/login" />
             </intent-filter>
-            <intent-filter>
+            <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:scheme="https"
-                    android:host="catchow.page.link" />
+                    android:host="catchow.page.link"
+                    android:pathPattern="/loginusr"/>
             </intent-filter>
         </activity>
         <activity
@@ -106,7 +107,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https"
-                    android:host="catchow.page.link" />
+                    android:host="catchow.page.link"
+                    android:pathPattern="/MainActivity"/>
             </intent-filter>
         </activity>
         <activity

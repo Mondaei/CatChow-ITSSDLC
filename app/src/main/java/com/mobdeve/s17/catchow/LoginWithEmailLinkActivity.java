@@ -42,6 +42,9 @@ public class LoginWithEmailLinkActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_with_email_link);
 
+        Log.d(TAG, "LoginWithEmailLinkActivity started");
+        Log.d(TAG, "Intent data: " + (getIntent().getData() != null ? getIntent().getData().toString() : "null"));
+
         auth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
         emailInput = findViewById(R.id.email_input);
@@ -254,7 +257,7 @@ public class LoginWithEmailLinkActivity extends AppCompatActivity {
                             Intent mainIntent = new Intent(LoginWithEmailLinkActivity.this, MainActivity.class);
                             mainIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(mainIntent);
-                            finish();
+
                         } else {
                             Log.e(TAG, "Error signing in with email link", task.getException());
                             Toast.makeText(LoginWithEmailLinkActivity.this,
@@ -265,27 +268,4 @@ public class LoginWithEmailLinkActivity extends AppCompatActivity {
                 });
     }
 
-    // Method to link the email credential with existing account
-    private void linkWithSignInLink(String email, String emailLink) {
-        // Construct the email link credential from the current URL.
-        AuthCredential credential =
-                EmailAuthProvider.getCredentialWithLink(email, emailLink);
-
-        // Link the credential to the current user.
-        auth.getCurrentUser().linkWithCredential(credential)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, "Successfully linked emailLink credential!");
-                            Toast.makeText(LoginWithEmailLinkActivity.this,
-                                    "Email linked successfully", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Log.e(TAG, "Error linking emailLink credential", task.getException());
-                            Toast.makeText(LoginWithEmailLinkActivity.this,
-                                    "Error linking email", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
 }
