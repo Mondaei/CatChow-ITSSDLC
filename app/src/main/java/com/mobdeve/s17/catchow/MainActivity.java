@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
 
                             // Only forward if we actually have a deep link
                             if (deepLink != null) {
-                                // Forward to your LoginWithEmailLinkActivity instead of LogInActivity
+                                // Forward to your LoginWithEmailLinkActivity
                                 Intent intent = new Intent(MainActivity.this, LoginWithEmailLinkActivity.class);
                                 intent.setData(deepLink);
                                 startActivity(intent);

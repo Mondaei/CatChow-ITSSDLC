@@ -23,6 +23,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.SignInMethodQueryResult;
+import com.google.firebase.dynamiclinks.DynamicLink;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -128,15 +129,16 @@ public class LoginWithEmailLinkActivity extends AppCompatActivity {
                         SharedPreferences preferences = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
                         preferences.edit().putString("user_email", email).apply();
 
+
                         // Configure the Action Code Settings for email link
                         ActionCodeSettings actionCodeSettings =
                                 ActionCodeSettings.newBuilder()
-                                        .setUrl("https://catchow.page.link/login")  // Updated with path component
+                                        .setUrl("https://catchow.page.link/loginusr?email=" + email)
                                         .setHandleCodeInApp(true)
                                         .setAndroidPackageName(
                                                 "com.mobdeve.s17.catchow",
-                                                true, /* installIfNotAvailable */
-                                                "12"    /* minimumVersion */)
+                                                true,
+                                                "1")
                                         .build();
 
                         // Send sign-in link
@@ -226,6 +228,10 @@ public class LoginWithEmailLinkActivity extends AppCompatActivity {
     private void completeSignIn(String email, String emailLink) {
         progressDialog.show();
 
+        Log.d(TAG, "Attempting to sign in with:");
+        Log.d(TAG, "Email: " + email);
+        Log.d(TAG, "Email Link: " + emailLink);
+
         // The client SDK will parse the code from the link for you.
         auth.signInWithEmailLink(email, emailLink)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -278,60 +284,6 @@ public class LoginWithEmailLinkActivity extends AppCompatActivity {
                             Log.e(TAG, "Error linking emailLink credential", task.getException());
                             Toast.makeText(LoginWithEmailLinkActivity.this,
                                     "Error linking email", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
-
-    // Method to reauthenticate a user with email link
-    private void reauthWithLink(String email, String emailLink) {
-        // Construct the email link credential from the current URL.
-        AuthCredential credential =
-                EmailAuthProvider.getCredentialWithLink(email, emailLink);
-
-        // Re-authenticate the user with this credential.
-        auth.getCurrentUser().reauthenticateAndRetrieveData(credential)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, "User successfully reauthenticated");
-                            Toast.makeText(LoginWithEmailLinkActivity.this,
-                                    "Reauthentication successful", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Log.e(TAG, "Error reauthenticating", task.getException());
-                            Toast.makeText(LoginWithEmailLinkActivity.this,
-                                    "Reauthentication failed", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
-
-    // Helper method to check sign-in methods for an email
-    private void checkSignInMethods(String email) {
-        auth.fetchSignInMethodsForEmail(email)
-                .addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
-                        if (task.isSuccessful()) {
-                            SignInMethodQueryResult result = task.getResult();
-                            List<String> signInMethods = result.getSignInMethods();
-                            if (signInMethods.contains(EmailAuthProvider.EMAIL_PASSWORD_SIGN_IN_METHOD)) {
-                                // User can sign in with email/password
-                                Toast.makeText(LoginWithEmailLinkActivity.this,
-                                        "Email uses password authentication", Toast.LENGTH_SHORT).show();
-                            } else if (signInMethods.contains(EmailAuthProvider.EMAIL_LINK_SIGN_IN_METHOD)) {
-                                // User can sign in with email/link
-                                Toast.makeText(LoginWithEmailLinkActivity.this,
-                                        "Email uses link authentication", Toast.LENGTH_SHORT).show();
-                            } else {
-                                Toast.makeText(LoginWithEmailLinkActivity.this,
-                                        "Email not registered", Toast.LENGTH_SHORT).show();
-                            }
-                        } else {
-                            Log.e(TAG, "Error getting sign in methods", task.getException());
-                            Toast.makeText(LoginWithEmailLinkActivity.this,
-                                    "Error checking authentication methods", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
