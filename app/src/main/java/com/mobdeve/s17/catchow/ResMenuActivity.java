@@ -75,6 +75,7 @@ public class ResMenuActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_res_menu);
+        auth = FirebaseAuth.getInstance();
 
         navbar = findViewById(R.id.navbar);
         res_img = findViewById(R.id.res_img);
